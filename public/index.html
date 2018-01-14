@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Dominik's unfancy image uploader</title>
+    <link href="index.css" rel="stylesheet"/>
+    <script src="index.js"></script>
+  </head>
+  <body>
+    <h1>Dominik's unfancy image uploader</h1>
+    <form id="form"
+          action="api/upload-image"
+          method="post"
+          encType="multipart/form-data">
+      <input name="image" type="file"/>
+      <input name="submit" type="submit">Upload!</input>
+    </form>
+  </body>
+</html>
