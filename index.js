@@ -3,16 +3,22 @@ const crypto = require('crypto');
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const dotenv = require('dotenv');
-const googleStorage = require('@google-cloud/storage');
+const firebaseAdmin = require('firebase-admin');
 
 dotenv.config();
-
-const storage = googleStorage({
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  keyFilename: process.env.FIREBASE_SECRET_KEY_JSON,
+firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+  }),
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
 });
+
 const app = express();
-const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
+const bucket = firebaseAdmin
+      .storage()
+      .bucket(process.env.FIREBASE_STORAGE_BUCKET);
 
 app.use(fileUpload());
 app.use(express.static('public'));
