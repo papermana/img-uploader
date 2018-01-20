@@ -4,6 +4,7 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const dotenv = require('dotenv');
 const firebaseAdmin = require('firebase-admin');
+const mustacheExpress = require('mustache-express');
 
 dotenv.config();
 firebaseAdmin.initializeApp({
@@ -21,7 +22,12 @@ const bucket = firebaseAdmin
       .bucket(process.env.FIREBASE_STORAGE_BUCKET);
 
 app.use(fileUpload());
-app.use(express.static('public'));
+app.engine('mustache', mustacheExpress());
+app.set('view engine', 'mustache');
+
+const templateVars = {
+  title: 'Dominik\'s unfancy image uploader',
+};
 
 const uploadFile = (name, buffer, mimetype) => {
   return new Promise((resolve, reject) => {
@@ -40,6 +46,10 @@ const uploadFile = (name, buffer, mimetype) => {
       return bucket.file(name).makePublic();
     });
 };
+
+app.get('/', (req, res) => {
+  res.render('index', { ...templateVars });
+});
 
 app.post('/api/upload-image', (req, res) => {
   const file = req.files.image;
@@ -76,7 +86,7 @@ app.get('/:hash', (req, res) => {
     .file(hash)
     .get()
     .then(([_, apiResponse]) => {
-      res.send(`<html><body><img src="${apiResponse.mediaLink}">`);
+      res.render('image', { ...templateVars, imgSrc: apiResponse.mediaLink });
     })
     .catch(err => {
       console.log('Error rendering the image')
